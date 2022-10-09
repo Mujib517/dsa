@@ -1,9 +1,10 @@
 
-import dp.Problems;
+import strings.Problems;
 
 public class Main {
     
     public static void main(String[] args) {
-        System.out.println(Problems.getLCS("abcdaf","acbcf"));
+        int[][] grid= new int[][]{{2,1,1},{0,1,1},{1,0,1}};
+        System.out.println(Problems.checkInclusion("adc","bcda"));
     }
 }

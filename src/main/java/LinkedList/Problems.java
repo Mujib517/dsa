@@ -86,10 +86,139 @@ public class Problems {
         ListNode p1 = head;
         ListNode p2 = head;
         
-        while(p1!=null && p2.next!=null){
-            p1= p1.next;
-            p2= p2.next.next;
+        while (p1 != null && p2 != null && p2.next != null) {
+            p1 = p1.next;
+            p2 = p2.next.next;
         }
         return p1;
     }
+    
+    public static boolean isPalindrome(ListNode head) {
+        ListNode temp1 = head;
+        ListNode temp2 = middleNode(head);
+        ListNode reversedTemp = reverse(temp2);
+        
+        while (reversedTemp != null) {
+            if (temp1.val != reversedTemp.val) {
+                return false;
+            }
+            temp1 = temp1.next;
+            reversedTemp = reversedTemp.next;
+        }
+        
+        return true;
+    }
+    
+    // 1 -> 2 -> 3 -> 4 -> 5  output grouped by odd and even indexes: 1 -> 3 -> 5 -> 2 -> 4
+    public static ListNode oddEvenList(ListNode head) {
+        if (head == null) {
+            return null;
+        }
+        
+        ListNode even = head;
+        ListNode odd = head.next;
+        ListNode oddTemp = odd;
+        
+        while (even.next != null && odd.next != null) {
+            even.next = even.next.next;
+            odd.next = odd.next.next;
+            
+            even = even.next;
+            odd = odd.next;
+        }
+        
+        even.next = oddTemp;
+        
+        return head;
+    }
+    
+    
+    static int getSize(ListNode head) {
+        int count = 0;
+        ListNode temp = head;
+        while (temp != null) {
+            temp = temp.next;
+            ++count;
+        }
+        
+        return count;
+    }
+    
+    // bubble sort
+    public static ListNode sortList(ListNode head) {
+        int n = getSize(head);
+        
+        for (int i = 0; i < n; i++) {
+            boolean swapped = false;
+            ListNode temp = head;
+            
+            while (temp != null && temp.next != null) {
+                ListNode next = temp.next;
+                if (temp.val > next.val) {
+                    int t = temp.val;
+                    temp.val = next.val;
+                    next.val = t;
+                    swapped = true;
+                }
+                temp = temp.next;
+            }
+            
+            if (!swapped) {
+                break;
+            }
+        }
+        
+        return head;
+    }
+    
+    public static ListNode merge(ListNode l1, ListNode l2) {
+        ListNode sorted = new ListNode(0);
+        ListNode temp = sorted;
+        
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
+                temp.next = l1;
+                l1 = l1.next;
+            } else {
+                temp.next = l2;
+                l2 = l2.next;
+            }
+            temp = temp.next;
+        }
+        
+        while (l1 != null) {
+            temp.next = l1;
+            l1 = l1.next;
+            temp = temp.next;
+        }
+        
+        while (l2 != null) {
+            temp.next = l2;
+            l2 = l2.next;
+            temp = temp.next;
+        }
+        
+        return sorted.next;
+    }
+    
+    public static ListNode mergeSort(ListNode head){
+        if(head == null || head.next == null ) return head;
+        
+        ListNode slow = head;
+        ListNode fast = head;
+        ListNode temp = slow;
+        
+        while(fast!=null && fast.next!=null){
+            temp = slow;
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        
+        temp.next = null;
+        
+        ListNode left = mergeSort(head);
+        ListNode right = mergeSort(slow);
+        return merge(left,right);
+    }
+    
 }

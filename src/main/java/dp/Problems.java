@@ -1,7 +1,11 @@
 package dp;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Problems {
     
@@ -55,7 +59,11 @@ public class Problems {
         
         if(n<=0 || wt<=0) return 0;
         
-        int included = v[n-1]+ knapsack01(v,w,n-1,wt-w[n-1]);
+        
+        int included = 0;
+        if(wt >= w[n-1])
+            included =v[n-1]+ knapsack01(v,w,n-1,wt-w[n-1]);
+        
         int excluded = knapsack01(v,w,n-1,wt);
         
         return Math.max(included,excluded);
@@ -145,9 +153,21 @@ public class Problems {
         return cache[length];
     }
     
+    // C(i) = max(Vk + C(i-k)) 1<=k<=i
+    public static int rodCuttingOptimized2(int[] v, int n) {
+        int[] cache = new int[n + 1];
+        
+        for (int i = 1; i < cache.length; i++) {
+            for (int j = 0; j < i; j++) {
+                cache[i] = Math.max(cache[i],v[j]+cache[i - j-1]);
+            }
+        }
+        
+        return cache[n];
+    }
+    
     
     /* Longest common subsequence */
-    
     public static String getLCS(String s1, String s2){
         int m = s1.length();
         int n = s2.length();
@@ -170,20 +190,20 @@ public class Problems {
 //            }
 //            System.out.println();
 //        }
-        
-        String result ="";
-        
-        int i=m,j=n;
-        while(i>0 && j>0){
-            if(cache[i][j] == 1+cache[i-1][j-1]) {
-                result = s2.charAt(j-1) + result;
-                i--;
-                j--;
-            } else {
-                j--;
-            }
-        }
-        return result;
+
+String result ="";
+
+int i=m,j=n;
+while(i>0 && j>0){
+    if(cache[i][j] == 1+cache[i-1][j-1]) {
+        result = s2.charAt(j-1) + result;
+        i--;
+        j--;
+    } else {
+        j--;
+    }
+}
+return result;
     }
     
     
@@ -243,25 +263,7 @@ public class Problems {
         return cache[m][n] = Math.max(lcsMemo(s1, s2, m - 1, n, cache), lcsMemo(s1, s2, m, n - 1, cache));
     }
     
-    
-    /* Longest palindromic subsequence */
-    public static int lps(String str){
-        StringBuilder sb = new StringBuilder(str);
-        String s2 = sb.reverse().toString();
-        
-        return lps(str,s2,str.length(),s2.length());
-    }
-    
-    private static int lps(String s1,String s2, int m, int n){
-        if(m ==0 || n == 0) return 0;
-        
-        if(s1.charAt(m-1) == s2.charAt(n-1)) return 1+ lps(s1,s2,m-1,n-1);
-        
-        return Math.max(lps(s1,s2,m-1,n),lps(s1,s2,m,n-1));
-    }
-    
     /* Longest increasing subsequence */
-    
     public static int lic(int[] arr, int n){
         int[] cache = new int[n + 1];
         Arrays.fill(cache, 1);
@@ -377,6 +379,152 @@ return max;
     }
     
     
+    /* buy sell stocks II */
+    public static int buySell2(int[] prices){
+        int buy = 0;
+        int sell = 0;
+        int profit =0;
+        
+        for(int i=1;i<prices.length;i++){
+            
+            if(prices[i]>=prices[i-1]) sell++;
+            else{
+                profit += prices[sell]-prices[buy];
+                buy = sell =i;
+            }
+        }
+        
+        profit += prices[sell]-prices[buy];
+        
+        return profit;
+    }
+    
+    /* buy sell stocks III */
+    public static int buySell3(int[] prices) {
+        int minPrice1 = Integer.MAX_VALUE;
+        int profit1 = 0;
+        int profit2 =0;
+        int minPrice2 = Integer.MAX_VALUE;
+        
+        for (int i = 0; i < prices.length; i++) {
+            minPrice1 = Math.min(minPrice1,prices[i]);
+            profit1 = Math.max(profit1, prices[i]-minPrice1);
+            
+            minPrice2 = Math.min(minPrice2, prices[i]-profit1);
+            profit2 = Math.max(profit2, prices[i]-minPrice2);
+        }
+        
+        return profit2;
+    }
+    
+    /* decode ways */
+    
+    private static int decodeWaysOptimized(char digits[], int n) {
+        int count[] = new int[n + 1];
+        count[0] = 1;
+        count[1] = 1;
+        if (digits[0] == '0') return 0;
+        
+        for (int i = 2; i <= n; i++) {
+            count[i] = 0;
+            
+            if (digits[i - 1] > '0') {
+                count[i] = count[i - 1];
+            }
+            
+            if (digits[i - 2] == '1'
+                    || (digits[i - 2] == '2'
+                    && digits[i - 1] < '7')) {
+                count[i] += count[i - 2];
+            }
+        }
+        return count[n];
+    }
+    
+    private static int decodeWaysMemo(char[] digits, int n, int[] dp) {
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        if (digits[0] == '0') {
+            return 0;
+        }
+        
+        if (dp[n] != -1) {
+            return dp[n];
+        }
+        
+        int count = 0;
+        
+        if (digits[n - 1] > '0') {
+            count = decodeWaysMemo(digits, n - 1, dp);
+        }
+        
+        if (digits[n - 2] == '1'
+                || (digits[n - 2] == '2'
+                && digits[n - 1] < '7')) {
+            count += decodeWaysMemo(digits, n - 2, dp);
+        }
+        
+        return dp[n] = count;
+    }
+    
+    
+    private static int decodeWays(char[] digits, int n){
+        if (n == 0 || n == 1) return 1;
+        if (digits[0] == '0') return 0;
+        
+        int count = 0;
+        
+        if (digits[n - 1] > '0') {
+            count = decodeWays(digits, n - 1);
+        }
+        
+        if (digits[n - 2] == '1'
+                || (digits[n - 2] == '2'
+                && digits[n - 1] < '7')) {
+            count += decodeWays(digits, n - 2);
+        }
+        
+        return count;
+    }
+    
+    public static int decodeWays(String str){
+        return decodeWays(str.toCharArray(),str.length());
+    }
+    
+    /* Trapping rain water */
+    public static int trappedRainWater(int[] heights) {
+        int n= heights.length;
+        int[] left = new int[n];
+        int[] right = new int[n];
+        
+        // calculate max building heights from left to right
+        int maxSofar=Integer.MIN_VALUE;
+        for(int i=0;i<n;i++){
+            maxSofar = Math.max(maxSofar,heights[i]);
+            left[i]=maxSofar;
+        }
+        
+        // calculate max building heights from rihgt to left
+        maxSofar = Integer.MIN_VALUE;
+        for (int i = n-1; i >=0; i--) {
+            maxSofar = Math.max(maxSofar, heights[i]);
+            right[i] = maxSofar;
+        }
+        
+        int volume=0;
+        
+        for(int i=0;i<n;i++){
+            // pick min of left and right heights and negate building height to get volume
+            volume += Math.min(left[i],right[i])-heights[i];
+        }
+        
+        return volume;
+    }
+    
     /* Edit distance */
     public static int editDistance(String s1, String s2){
         return editDistance(s1,s2,s1.length(),s2.length());
@@ -422,13 +570,118 @@ return max;
     }
     
     
-    private static int coinChange(int[] arr, int n, int sum){
-        if(sum==0) return 1;
-        if(sum<0) return 0;
-        if(n<=0) return 0;
+    /* longest palindromic subsequence */
+    private static int lps(String s, int i, int j){
+        if(i>j) return 0;
+        if(i==j) return 1;
         
-        return coinChange(arr,n-1,sum) + coinChange(arr,n,sum-arr[n-1]);
+        if(s.charAt(i) == s.charAt(j)) return 2+ lps(s,i+1,j-1);
+        
+        return Math.max(lps(s,i,j-1),lps(s,i+1,j));
+        
     }
+    
+    public static int lps(String str){
+        return lps(str,0,str.length()-1);
+    }
+    
+    
+    /* Find max sum path in matrix */
+    public static int findMaxPath(int[][] mat) {
+        int m = mat.length;
+        int n = mat[0].length;
+        
+        for (int i = 1; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (j > 0 && j < n - 1) {
+                    mat[i][j] += Math.max(mat[i - 1][j],
+                            Math.max(mat[i - 1][j - 1],
+                                    mat[i - 1][j + 1]));
+                } else if (j > 0) {
+                    mat[i][j] += Math.max(mat[i - 1][j],
+                            mat[i - 1][j - 1]);
+                } else if (j < n - 1) {
+                    mat[i][j] += Math.max(mat[i - 1][j],
+                            mat[i - 1][j + 1]);
+                }
+                
+            }
+        }
+        
+        int max = Integer.MIN_VALUE;
+        for (int i = 0; i < n; i++) {
+            max = Math.max(mat[m - 1][i], max);
+        }
+        return max;
+    }
+    
+    
+    /* word break */
+    private static boolean wordBreak(String s, int i, Set<String> dict) {
+        if(i==s.length()) return true;
+        
+        String temp="";
+        for(int j=i;j<s.length();j++){
+            temp += s.charAt(j);
+            
+            if(dict.contains(temp)){
+                if(wordBreak(s,j+1,dict)) return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    public static boolean wordBreak(String s, String[] w) {
+        Set<String> dict =new HashSet<>();
+        dict.addAll(Arrays.asList(w));
+        return wordBreak(s,0,dict);
+    }
+    
+    private static List<String> wordBreak2(String s,int i,Set<String> dict,List<String> result) {
+        if(i==s.length()) return result;
+        String temp = "";
+        for (int j = i; j < s.length(); j++) {
+            temp += s.charAt(j);
+            
+            if (dict.contains(temp)) {
+                result.add(temp);
+                return wordBreak2(s, j + 1, dict,result);
+            }
+        }
+        
+        return result;
+    }
+    
+    public static List<String> wordBreak2(String s, String[] w) {
+        List<String> result = new ArrayList();
+        Set<String> dict = new HashSet<>();
+        dict.addAll(Arrays.asList(w));
+        return wordBreak2(s, 0, dict,result);
+    }
+    
+    
+    private static int coinchangeMemo(int[] coins, int target, int n, int[][] dp) {
+        if (target < 0) return 0;
+        if (target == 0) return dp[n][target] = 1;
+        if (n <= 0) return 0;
+        if (dp[n][target] != -1) return dp[n][target];
+        
+        
+        return dp[n][target]
+                = coinchangeMemo(coins, target - coins[n - 1], n, dp)
+                + coinchangeMemo(coins, target, n - 1, dp);
+    }
+    
+    public static int coinChangeMemo(int[] coins, int target){
+        int n = coins.length;
+        int[][] dp = new int[n + 1][target + 1];
+        for (int[] row : dp) {
+            Arrays.fill(row, -1);
+        }
+        return coinchangeMemo(coins, target, n, dp);
+    }
+    
     
     private static int fibOptimized(int n, HashMap<Integer, Integer> map){
         if(n==0 || n==1) return 1;
@@ -437,5 +690,153 @@ return max;
         
         return fibOptimized(n-1) + fibOptimized(n-2);
     }
+    
+    
+    /* unique paths in a matrix when only right and down moves are allowed */
+    public static int uniquePaths(int m, int n) {
+        if (m == 1 || n == 1) {
+            return 1;
+        }
+        
+        return uniquePaths(m - 1, n) + uniquePaths(m, n - 1);
+    }
+    
+    public static int uniquePathsTabular(int m, int n) {
+        int[][] dp = new int[m][n];
+        
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == 0 || j == 0) {
+                    dp[i][j] = 1;
+                } else {
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                }
+            }
+        }
+        
+        return dp[m - 1][n - 1];
+    }
+    
+    
+    /* max product */
+    
+    private static int max(int[] arr){
+        int max = Integer.MIN_VALUE;
+        
+        for(int val:arr) max = Math.max(max,val);
+        
+        return max;
+    }
+    
+    private static int maxProductNaive(int[] arr, int n){
+        int result = arr[0];
+        
+        for (int i = 0; i < n; i++) {
+            int mul = arr[i];
+            for (int j = i + 1; j < n; j++) {
+                result = Math.max(result, mul);
+                mul *= arr[j];
+            }
+            result = Math.max(result, mul);
+        }
+        return result;
+    }
+    
+    private static int maxProduct(int[] arr, int n){
+        int res = max(arr);
+        int currMin = 1, currMax = 1;
+        
+        for (int i = 0; i < n; i++) {
+            
+            currMax = Math.max(Math.max(currMax * arr[i], currMin * arr[i]), arr[i]);
+            currMin = Math.min(Math.min(currMax * arr[i], currMin * arr[i]), arr[i]);
+            
+            res = Math.max(res, currMax);
+        }
+        
+        return res;
+    }
+    
+    public static int maxProduct(int[] arr) {
+        return maxProduct(arr,arr.length);
+    }
+    
+    /* palindrome partitioning */
+    
+    private static boolean isPalindrome(String s, int i, int j){
+        while(i<j){
+            if(s.charAt(i++)!=s.charAt(j--)) return false;
+        }
+        
+        return true;
+    }
+    
+    public static int pp(String s){
+        int n= s.length();
+        int[][] dp = new int[n][n];
+        
+        for(int gap=1;gap<n;gap++){
+            for(int row = 0, col=gap; row<n-gap;row++,col++){
+                if(isPalindrome(s,row,col)){
+                    dp[row][col] = 0;
+                }else{
+                    dp[row][col] = Integer.MAX_VALUE;
+                    
+                    for(int k=row;k<col;k++){
+                        dp[row][col] = Math.min(dp[row][col],1+dp[row][k]+dp[k+1][col]);
+                    }
+                }
+            }
+        }
+        return dp[0][n-1];
+    }
+    
+    // house rob
+    private int rob(int[] nums, int n) {
+        if (n < 0) {
+            return 0;
+        }
+        
+        int include = nums[n] + rob(nums, n - 2);
+        int exclude = rob(nums, n - 1);
+        
+        return Math.max(include, exclude);
+        
+    }
+    
+    public int rob(int[] nums) {
+        return rob(nums, nums.length - 1);
+    }
+    
+    public int robOptimized(int[] nums) {
+        int n =nums.length;
+        if(n == 0) return 0;
+        if(n == 1) return nums[0];
+        
+        int[] dp = new int[n];
+        
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0],nums[1]);
+        
+        for(int i=2;i<n;i++){
+            dp[i] = Math.max(nums[i]+dp[i-2],dp[i-1]);
+        }
+        
+        return dp[n-1];
+    }
+    
+    // no extra space
+    public int robOptimized2(int[] nums) {
+        int n = nums.length;
+        
+        int rob1=0, rob2 = 0;
+        
+        for(int num : nums){
+            int newRob = Math.max(num+rob1,rob2);
+            rob1 = rob2;
+            rob2 = newRob;
+        }
+        
+        return rob2;
+    }
 }
-

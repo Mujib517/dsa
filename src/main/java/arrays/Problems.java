@@ -1,6 +1,10 @@
 package arrays;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Problems {
     
@@ -105,4 +109,198 @@ public class Problems {
         for(int i=start;i<=end;i++) System.out.print(arr[i]+" ");
         System.out.println();
     }
+    
+    
+    public static void dutchNationalFlag(int[] arr) {
+        int i=0,j=0,k=arr.length-1;
+        
+        while(j<=k){
+            switch (arr[j]) {
+                case 0 -> {
+                    int temp = arr[i];
+                    arr[i]= arr[j];
+                    arr[j]=temp;
+                    i++;
+                    j++;
+                }
+                case 1 -> j++;
+                default -> {
+                    int temp2 = arr[k];
+                    arr[k] = arr[j];
+                    arr[j] = temp2;
+                    k--;
+                }
+            }
+        }
+    }
+    
+    // remove duplicates from sorted arry and return count
+    public static int removeDuplicates(int[] arr) {
+        int count = arr.length;
+        int n = arr.length;
+        int i = 0;
+        while (i < n - 1) {
+            if (arr[i] == arr[i + 1]) {
+                count--;
+            }
+            i++;
+        }
+
+        return count;
+    }
+    
+    public static List<Integer> intersection(int[] a, int[] b) {
+       int m = a.length,n = b.length;
+       int i=0,j=0;
+       
+       List<Integer> res= new ArrayList();
+       
+       while(i<m && j<n){
+           if(a[i]==b[j]){
+               res.add(a[i]);
+               i++;
+               j++;
+           }else if(a[i]>b[j]) j++;
+           else i++;
+       }
+       
+       return res;
+    }
+    
+    
+    /* a[i]-a[j] = k where i<j */
+    public static int kDiffPairs(int[] a, int k) {
+        int p1 = 0, p2 = 1;
+        int n = a.length;
+
+        if (n <= 1) {
+            return 0;
+        }
+
+        int count = 0;
+
+        while (p2 < n && p1 < p2) {
+
+            while (p2 < (n - 1) && a[p2] == a[p2 + 1]) {
+                p2++;
+            }
+
+            int diff = Math.abs(a[p1] - a[p2]);
+            if (diff == k) {
+                ++count;
+                p1++;
+                p2++;
+            } else if (diff < k) {
+                p2++;
+            } else {
+                p1++;
+            }
+        }
+
+        return count;
+    }
+    
+    
+    private static boolean dfs(char[][] board, int i, int j, int index, String word){
+        if(index == word.length()) return true;
+        if(i<0 || j<0 || i>=board.length || j>=board[i].length || board[i][j]!=word.charAt(index)) return false; 
+        
+        char temp = board[i][j];
+        board[i][j] = ' ';
+
+        boolean found = dfs(board,i+1,j,index+1,word)
+                || dfs(board, i-1,j,index+1, word)
+                || dfs(board, i,j+1,index+1,word)
+                || dfs(board, i,j-1, index+1, word);
+
+        board[i][j] = temp;
+        return found;
+    }
+    
+    public static boolean wordSearchInMatrix(char[][] board, String word){
+        int m = board.length;
+        int n = board[0].length;
+        
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(board[i][j] == word.charAt(0) && dfs(board,i,j,0,word)) return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    // 1<=nums[i]<=n (n is size of array)
+    // constant space
+    public static List<Integer> findDuplicates(int[] nums) {
+        List<Integer> res = new ArrayList();
+
+        for (int i = 0; i < nums.length; i++) {
+            int idx = Math.abs(nums[i]) - 1;
+
+            if (nums[idx] < 0) {
+                res.add(Math.abs(nums[i]));
+            }
+
+            nums[idx] = -nums[idx];
+        }
+
+        return res;
+    }
+    
+    // without using division operator
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] left = new int[n];
+        int[] right = new int[n];
+        int[] res = new int[n];
+        
+        left[0] = 1;
+        right[n-1] = 1;
+        
+        for(int i = 1; i<n;i++){
+            left[i] = nums[i-1]*left[i-1];
+        }
+        
+        for (int i=n-2; i>=0; i--) {
+            right[i] = nums[i+1] * right[i+1];
+        }
+        
+        
+        for(int i=0;i<n;i++) res[i] = left[i]*right[i];
+        
+        return res;
+    }
+    
+    private void swap(int[] arr, int i, int j){
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    
+    private void backtrack(int[] arr, List<List<Integer>> res, int start){
+       if(start == arr.length) res.add(toList(arr));
+       else{
+           for(int i=start; i<arr.length;i++){
+               swap(arr,i,start);
+               backtrack(arr,res,start+1);
+               swap(arr,i,start);
+           }
+       }
+    }
+    
+    private List<Integer> toList(int[] arr){
+        List<Integer> list = new ArrayList();
+        
+        for(int val : arr) list.add(val);
+        return list;
+    }
+    
+    public List<List<Integer>> permutatations(int[] arr){
+        List<List<Integer>> res = new ArrayList();
+        backtrack(arr,res,0);
+        return res;
+    }
 }
+
+
