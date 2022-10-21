@@ -52,6 +52,28 @@ public class Problems {
         return coinChange(arr,arr.length,sum);
     }
     
+    public static int coinChangeBottomUp(int[] coins, int amount){
+        int[] dp = new int[amount + 1];
+        
+        // fill with any higher value, Interger.MAX_VALUE should also work
+        Arrays.fill(dp, amount + 1);
+        
+        dp[0] = 0; // if amoun is zero there are 0 ways possible
+        
+        // calculate for each amount min number of possible ways to return change
+        for (int i = 1; i <= amount; i++) {
+            for (int coin : coins) {
+                int val = i - coin;
+                // it is valid if val is greather or equal to zero
+                if (val >= 0) {
+                    dp[i] = Math.min(dp[i], 1 + dp[val]);
+                }
+            }
+        }
+        
+        return dp[amount] == amount + 1 ? -1 : dp[amount];
+    }
+    
     
     /* knapsack */
     
@@ -743,15 +765,18 @@ return max;
     }
     
     private static int maxProduct(int[] arr, int n){
-        int res = max(arr);
-        int currMin = 1, currMax = 1;
+        int res = Integer.MIN_VALUE;
+        int min = 1, max = 1;
         
         for (int i = 0; i < n; i++) {
+            int currentMax = Math.max(Math.max(arr[i], arr[i] * max), arr[i] * min);
+            int currentMin = Math.min(Math.min(arr[i], arr[i] * max), arr[i] * min);
             
-            currMax = Math.max(Math.max(currMax * arr[i], currMin * arr[i]), arr[i]);
-            currMin = Math.min(Math.min(currMax * arr[i], currMin * arr[i]), arr[i]);
+            // do not override max and min before, do it after calculation
+            max = currentMax;
+            min = currentMin;
             
-            res = Math.max(res, currMax);
+            res = Math.max(max, res);
         }
         
         return res;
@@ -838,5 +863,99 @@ return max;
         }
         
         return rob2;
+    }
+    
+    private boolean hasSum(int[] nums, int index, int target) {
+        if (index >= nums.length) {
+            return false;
+        }
+        if (target == 0) {
+            return true;
+        }
+        
+        boolean included = false;
+        if (nums[index] - target >= 0) {
+            included = hasSum(nums, index + 1, nums[index] - target);
+        }
+        
+        boolean excluded = hasSum(nums, index + 1, target);
+        
+        return included || excluded;
+    }
+    
+    
+    // https://leetcode.com/problems/partition-equal-subset-sum
+    // TLE: 62 / 140 test cases passed.
+    public boolean canPartitionNaive(int[] nums) {
+        if (nums.length <= 1) {
+            return false;
+        }
+        // get the sum of all the numbers
+        int sum = 0;
+        for (int val : nums) {
+            sum += val;
+        }
+        
+        // if sum is odd you cannot partiion it equally
+        if (sum % 2 != 0) {
+            return false;
+        }
+        
+        // try to find sum/2 that would be equal partition
+        // if found return true else return false
+        return hasSum(nums, 0, sum / 2);
+    }
+    
+    private static boolean hasSumNaive(int[] nums, int index, int target){
+        if (target == 0) {
+            return true;
+        }
+        if (index >= nums.length) {
+            return false;
+        }
+        
+        boolean included = false;
+        if (target - nums[index] >= 0) {
+            included = hasSumNaive(nums, index + 1, target - nums[index]);
+        }
+        
+        boolean excluded = hasSumNaive(nums, index + 1, target);
+        
+        return included || excluded;
+    }
+    
+    
+    // https://leetcode.com/problems/partition-equal-subset-sum
+    public static boolean canPartitionOptimized(int[] nums) {
+        // get the sum of all the numbers
+        int sum = 0;
+        for(int val :  nums) sum+=val;
+        int n = nums.length;
+        
+        // odd number, cannot partition equally
+        if(sum%2!=0) return false;
+        
+        // create set and add all possible sum for each element
+        // for instance [1,5,11,5] the last element 5 can produce either 0 (excluded) or 5 (included) sum
+        Set<Integer> set = new HashSet();
+        set.add(0); // initial value
+        
+        for(int i=n-1;i>=0;i--){
+            
+            // cannot modify while running a for each loop, so create a clone of the set
+            Set<Integer> tempSet =  new HashSet();
+            
+            // add it with all the existing values of set
+            for(int val:set){
+                tempSet.add(val+nums[i]);
+                // make sure to add value to the cloned set or create a clone from original set to avoid this line
+                tempSet.add(val);
+            }
+            
+            // assign back the cloned set to actual set
+            set = tempSet;
+        }
+        
+        return set.contains(sum/2);
     }
 }

@@ -35,16 +35,57 @@ public class Problems {
         return res % p;
     }
     
-    boolean isPowerOfTwo(int n) {
+    public boolean isPowerOfTwo(int n) {
+        if (n <= 0) return false;
+        if (n == 1) return true;
+        
         int count = 0;
         for (int i = 1; i <= 32; i++) {
-            int x = 1 << i;
-
-            if ((n & x) > 0) {
+            if (((1 << i) & n) > 0) {
                 ++count;
             }
         }
-
+        
         return count == 1;
+    }
+    
+    public int addDigits(int num) {
+        
+        while (num > 9) {
+            
+            int sum = 0;
+            while (num > 0) {
+                sum += num % 10;
+                num /= 10;
+            }
+            
+            num = sum;
+        }
+        
+        return num;
+    }
+    
+    /*
+    n=3^x we need to find x
+    
+    x = log(n) base 3
+    
+    x = logn/log3  (base 10)
+    
+    }
+    */
+    public boolean isPowerOfThree(int n) {
+        if (n <= 0) return false;
+        if (n == 1) return true;
+        
+        // %1 to check if it's an integer
+        return Math.log10(n) / Math.log10(3) % 1 == 0;
+    }
+    
+    public boolean isPowerOfFour(int n) {
+        if (n <= 0) return false;
+        if (n == 1) return true;
+        
+        return (Math.log10(n) / Math.log10(4)) % 1 == 0;
     }
 }

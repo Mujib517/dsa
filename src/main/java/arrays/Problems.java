@@ -2,8 +2,13 @@ package arrays;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Problems {
@@ -300,6 +305,207 @@ public class Problems {
         List<List<Integer>> res = new ArrayList();
         backtrack(arr,res,0);
         return res;
+    }
+    
+    public int majorityElement(int[] nums) {
+        int n = nums.length;
+        int threshold = n % 2 == 0 ? n / 2 : 1 + n / 2;
+
+        Map<Integer, Integer> map = new HashMap();
+
+        for (int i = 0; i < n; i++) {
+            map.put(nums[i], map.getOrDefault(nums[i], 0) + 1);
+        }
+
+        for (Map.Entry<Integer, Integer> mapElement : map.entrySet()) {
+            int key = mapElement.getKey();
+            int value = mapElement.getValue();
+
+            if (value >= threshold) {
+                return key;
+            }
+        }
+
+        return 0;
+    }
+    
+    public boolean containsDuplicate(int[] nums) {
+        Map<Integer, Integer> map = new HashMap();
+
+        for (int i = 0; i < nums.length; i++) {
+            if (map.containsKey(nums[i]) && map.get(nums[i]) >= 1) {
+                return true;
+            }
+            map.put(nums[i], map.getOrDefault(nums[i], 0) + 1);
+        }
+
+        return false;
+    }
+    
+    public boolean containsNearbyDuplicateII(int[] nums, int k) {
+        int n = nums.length;
+
+        Map<Integer, Integer> map = new HashMap();
+
+        for (int i = 0; i < n; i++) {
+            if (map.containsKey(nums[i]) && Math.abs(i - map.get(nums[i])) <= k) {
+                return true;
+            }
+
+            map.put(nums[i], i);
+        }
+
+        return false;
+    }
+    
+    private int getValue(List<Integer> list, int index) {
+        int n = list.size();
+        int value = 0;
+        if (index - 1 >= 0) {
+            value += list.get(index - 1);
+        }
+        if (index < n) {
+            value += list.get(index);
+        }
+
+        return value;
+    }
+
+    public List<List<Integer>> pascalTriangle(int numRows) {
+        List<List<Integer>> res = new ArrayList<>();
+
+        List<Integer> first = new ArrayList();
+        first.add(1);
+        res.add(first);
+
+        for (int i = 1; i < numRows; i++) {
+            int[] arr = new int[i + 1];
+
+            for (int j = 0; j < arr.length; j++) {
+                arr[j] = getValue(res.get(i - 1), j);
+            }
+
+            res.add(Arrays.stream(arr).boxed().toList());
+        }
+
+        return res;
+    }
+    
+    public List<String> summaryRanges(int[] nums) {
+        int p1 = 0, p2 = 0;
+        int n = nums.length;
+
+        List<String> result = new ArrayList();
+
+        while (p2 < n) {
+            int next = p2 + 1;
+            if (next < n) {
+                if (nums[p2] + 1 == nums[next]) {
+                    ++p2;
+                } else {
+                    result.add(p1 == p2 ? Integer.toString(nums[p1]) : nums[p1] + "->" + nums[p2]);
+                    p1 = next;
+                    p2 = next;
+                }
+            } else {
+                result.add(p1 == p2 ? Integer.toString(nums[p1]) : nums[p1] + "->" + nums[p2]);
+                p1++;
+                p2++;
+            }
+        }
+
+        return result;
+    }
+    
+    public static int thirdMax(int[] nums) {
+        Set<Integer> set = new HashSet();
+        PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());
+
+        for (int i = 0; i < nums.length; i++) {
+            if (set.contains(nums[i])) {
+                continue;
+            }
+            pq.add(nums[i]);
+            set.add(nums[i]);
+        }
+
+        if (pq.size() < 3) {
+            return pq.peek();
+        }
+
+        int max = pq.poll();
+        int k = 2;
+
+        while (k > 0 && !pq.isEmpty()) {
+            max = pq.poll();
+            k--;
+        }
+
+        return max;
+    }
+    
+    public int[] plusOne(int[] digits) {
+        int carry = 0;
+        int n = digits.length;
+        digits[n - 1] += 1;
+        carry = digits[n - 1] / 10;
+        digits[n - 1] = digits[n - 1] % 10;
+
+        if (carry == 0) return digits;
+
+        for (int i = digits.length - 2; i >= 0; i--) {
+            if (carry == 0) break;
+          
+            digits[i] += carry;
+            carry = digits[i] / 10;
+            digits[i] = digits[i] % 10;
+        }
+
+        if (carry == 0) return digits;
+
+        int[] res = new int[n + 1];
+        res[0] = carry;
+        int k = 1;
+
+        for (int i = 0; i < n; i++) {
+            res[k++] = digits[i];
+        }
+
+        return res;
+    }
+    
+    public int[] intersection(int[] nums1, int[] nums2) {
+        Arrays.sort(nums1);
+        Arrays.sort(nums2);
+
+        int m = nums1.length;
+        int n = nums2.length;
+
+        int i = 0, j = 0;
+
+        Set<Integer> res = new HashSet();
+
+        while (i < m && j < n) {
+            if (nums1[i] == nums2[j]) {
+                if (!res.contains(nums1[i])) {
+                    res.add(nums1[i]);
+                }
+                ++i;
+                ++j;
+            } else if (nums1[i] < nums2[j]) {
+                ++i;
+            } else {
+                ++j;
+            }
+        }
+
+        int[] result = new int[res.size()];
+        int k = 0;
+        for (int val : res) {
+            result[k++] = val;
+        }
+
+        return result;
     }
 }
 

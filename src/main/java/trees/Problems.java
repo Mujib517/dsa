@@ -176,6 +176,38 @@ public class Problems {
         
     }
     
+    // clean, without using any null values in queue
+    public List<List<Integer>> levelOrder3(TreeNode root) {
+        List<List<Integer>> result = new ArrayList();
+        if (root == null) {
+            return result;
+        }
+        
+        Queue<TreeNode> q = new LinkedList();
+        q.add(root);
+        
+        while (!q.isEmpty()) {
+            int size = q.size();
+            
+            List<Integer> list = new ArrayList();
+            while (size-- > 0) {
+                TreeNode temp = q.poll();
+                list.add(temp.val);
+                
+                if (temp.left != null) {
+                    q.add(temp.left);
+                }
+                if (temp.right != null) {
+                    q.add(temp.right);
+                }
+            }
+            
+            result.add(list);
+        }
+        
+        return result;
+    }
+    
     public static void leftView(TreeNode root){
         if(root==null) return;
         
@@ -467,8 +499,6 @@ public class Problems {
         return Math.abs(lh - rh) <= 1 && isBalanced(root.left) && isBalanced(root.right);
     }
     
-    
-    
     private static int pathSumUtil(TreeNode root, int sum){
         if (root == null) {
             return 0;
@@ -502,7 +532,7 @@ public class Problems {
         }
         
 //        list.remove(list.size() - 1);
-        
+
     }
     
     private static int pathSum(TreeNode root, int sum) {
@@ -510,5 +540,67 @@ public class Problems {
         return count;
     }
     
+    private boolean isSymmetric(TreeNode t1, TreeNode t2) {
+        if (t1 == null && t2 == null) return true;
+        if (t1 == null || t2 == null) return false;
+        
+        return t1.val == t2.val
+                && isSymmetric(t1.left, t2.right)
+                && isSymmetric(t1.right, t2.left);
+    }
     
+    public boolean isSymmetric(TreeNode root) {
+        if (root == null) return true;
+        
+        return isSymmetric(root.left, root.right);
+    }
+    
+    public int minDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        
+        int left = minDepth(root.left);
+        int right = minDepth(root.right);
+        
+        return (left == 0 || right == 0) ? left + right + 1 : Math.min(left, right) + 1;
+    }
+    
+    public int maxDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        
+        int left = maxDepth(root.left);
+        int right = maxDepth(root.right);
+        
+        return 1 + Math.max(left, right);
+    }
+    
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        if (root == null) {
+            return false;
+        }
+        if (root.left == null && root.right == null && targetSum - root.val == 0)
+            return true;
+        
+        return hasPathSum(root.left, targetSum - root.val)
+                || hasPathSum(root.right, targetSum - root.val);
+    }
+    
+    private List<String> res;
+    
+    public void binaryTreePathsUtil(TreeNode root, String path) {
+        if (root == null) return;
+        if (root.left == null && root.right == null) res.add(path + root.val);
+        
+        binaryTreePathsUtil(root.left, path + root.val + "->");
+        binaryTreePathsUtil(root.right, path + root.val + "->");
+    }
+    
+    public List<String> binaryTreePaths(TreeNode root) {
+        res = new ArrayList();
+        binaryTreePathsUtil(root, "");
+        return res;
+    }
 }

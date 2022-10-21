@@ -221,4 +221,83 @@ public class Problems {
         return merge(left,right);
     }
     
+    int size(ListNode head) {
+        int count = 0;
+        
+        while (head != null) {
+            head = head.next;
+            ++count;
+        }
+        return count;
+    }
+    
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        int size1 = size(headA);
+        int size2 = size(headB);
+        
+        ListNode largest = size2 > size1 ? headB : headA;
+        ListNode smallest = size2 > size1 ? headA : headB;
+        int diff = Math.abs(size1 - size2);
+        
+        ListNode temp = largest;
+        while (diff > 0) {
+            temp = temp.next;
+            --diff;
+        }
+        
+        while (temp != null && smallest != null) {
+            
+            if (temp == smallest) {
+                return temp;
+            }
+            
+            smallest = smallest.next;
+            temp = temp.next;
+        }
+        
+        return null;
+    }
+    
+    public boolean hasCycle(ListNode head) {
+        if (head == null) {
+            return false;
+        }
+
+        ListNode slow = head;
+        ListNode fast = head.next;
+
+        while (slow != null && fast != null && fast.next != null) {
+
+            if (slow == fast) {
+                return true;
+            }
+
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        return false;
+    }
+    
+    public ListNode removeElements(ListNode head, int val) {
+        if (head == null) {
+            return head;
+        }
+
+        while (head != null && head.val == val) {
+            head = head.next;
+        }
+
+        ListNode temp = head;
+        while (temp != null && temp.next != null) {
+            if (temp.next.val == val) {
+                temp.next = temp.next.next;
+            } else {
+                temp = temp.next;
+            }
+        }
+
+        return head;
+    }
+    
 }

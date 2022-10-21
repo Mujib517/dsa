@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
@@ -372,4 +373,74 @@ public class Problems {
         return fresh == 0 ? minutes : -1;
     }
     
+    
+    public static int threeSumClosest(int[] arr, int target) {
+        Arrays.sort(arr);
+        int n = arr.length;
+        int closest = Integer.MAX_VALUE;
+        int minDifference = Integer.MAX_VALUE;
+        
+        for (int i = 0; i < n - 2; i++) {
+            int j = i + 1;
+            int k = n - 1;
+            
+            while (j < k) {
+                int sum = arr[i] + arr[j] + arr[k];
+                int difference = Math.abs(target - sum);
+                if (difference == 0) {
+                    return target;
+                }
+                if (difference < minDifference) {
+                    minDifference = difference;
+                    closest = sum;
+                }
+                if (sum < target) {
+                    j++;
+                } else {
+                    k--;
+                }
+            }
+        }
+        
+        return closest;
+    }
+    
+    public static int taskSchedule(char[] tasks, int n){
+        if(n==0) return tasks.length;
+        
+        int[] map = new int[26];
+        
+        for(char ch : tasks){
+            map[ch-'A']+=1;
+        }
+        // max heap, save frequencies of each individual tasks
+        PriorityQueue<Integer> pq = new PriorityQueue<>((a,b)->b-a);
+        
+        for(int i=0;i<map.length;i++){
+            if(map[i]!=0) pq.add(map[i]);
+        }
+        
+        // maintain list of tasks with their next schedule
+        Queue<int[]> q = new LinkedList();
+        int time=0;
+        
+        while(!pq.isEmpty() || !q.isEmpty()){
+            ++time;
+            if(!pq.isEmpty()){
+                int task = pq.poll();
+                if(task>1){
+                    int[] item = new int[]{task-1, time + n};
+                    q.add(item);
+                }
+            }
+            
+            // if the scheduled time has come
+            if(!q.isEmpty() && q.peek()[1]==time){
+                int[] temp = q.poll();
+                pq.add(temp[0]);
+            }
+        }
+        
+        return time;
+    }
 }
